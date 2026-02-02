@@ -109,7 +109,7 @@ By predicting a customer’s average spend rather than a single future transacti
 ### 5.1 Machine Learning Model 1: Customer Conversion (Loyalty Prediction)
 
 The objective of this model is to predict the probability that a customer transitions from a one-time buyer to a repeat customer based on their initial transactional and behavioral signals.(Both for Repeated and First Time Customers)
-
+This model focuses on learning **behavioral patterns** that indicate long-term customer retention rather than short-term transactional noise.
 ### Model Selection & Iteration
 
 A **Champion–Challenger** approach was adopted to evaluate multiple algorithms and identify the most effective modeling strategy:
@@ -130,6 +130,7 @@ A **Champion–Challenger** approach was adopted to evaluate multiple algorithms
 **Model Diagnostics & Validation**
 - Conducted data leakage audits to ensure no future information was present in first-order features.
 - Applied scaling and skewness correction to monetary features to improve model convergence.
+- Used GridSearchCV to find optimal hyperparameters for training Models.
 - Analyzed feature importance using model-based metrics and SHAP values to confirm that predictions were driven by meaningful signals.
 
 **Noise Reduction**
@@ -156,44 +157,141 @@ A **Champion–Challenger** approach was adopted to evaluate multiple algorithms
 **Performance Gain**  
 - The combined impact of ratio-based feature engineering and noise reduction resulted in a **4× improvement in PR-AUC**, increasing performance from a ~2% baseline to **~8.3%**.
 
+**Feature Importance**
+- Customers with higher item counts and balanced pricing are more likely to convert, while verbose reviews and specific payment patterns signal lower repeat propensity.
 
----
 
-This model focuses on learning **behavioral patterns** that indicate long-term customer retention rather than short-term transactional noise.
-
-### Models Evaluated
-### Handling Class Imbalance
 ### Evaluation Metrics
-### Model Performance Summary
+
+![Eval](Images/EvalCC.png)
+
+Given the strong class imbalance in the dataset, model performance was evaluated using metrics that focus on ranking quality and minority-class detection rather than overall accuracy.
+
+**Metrics Used**
+- **ROC-AUC:** Measures the model’s ability to rank positive examples above negative ones across all thresholds.
+- **PR-AUC:** Captures precision–recall trade-offs and is the primary metric for evaluating performance on the minority (repeat customer) class.
+- **F1-Score:** Balances precision and recall at a fixed threshold, providing insight into practical classification performance.
+  
+### 5.4 Model Evaluation Summary
+
+Model evaluation results highlight the trade-offs between ranking quality and classification performance under severe class imbalance.
+
+- **Ensemble models** achieved the highest **PR-AUC (~8.3%)**, indicating the strongest ability to identify repeat customers above a ~3% baseline.
+- **XGBoost** delivered the best **F1-Score**, suggesting better balance between precision and recall at the chosen operating point.
+- **Logistic Regression** provided a strong ROC-AUC baseline but underperformed on recall-sensitive metrics.
+- **Tree-based models** consistently outperformed linear approaches on PR-AUC, reflecting their ability to capture non-linear customer behavior patterns.
+
+Overall, **PR-AUC was prioritized over accuracy and ROC-AUC**, as it better reflects real-world performance when predicting rare but high-value repeat customers.
+
+
+### 5.5 Machine Learning Model 2: Average Order Value (AOV Prediction)
+
+This model focuses on predicting the **Average Order Value (AOV)** a repeat customer is expected to generate, enabling stable forecasting of long-term revenue rather than volatile single-transaction estimates.
+
+### Model Objective & Scope
+
+- **Objective:** Predict customer-level AOV as a proxy for long-term spending behavior.
+- **Target Population:** Restricted to **repeat customers only**, as their historical purchasing patterns provide a more reliable signal than one-time transactions.
+
+### Model Selection & Approach
+
+- Evaluated **Linear Regression** and multiple **tree-based models**.
+- **XGBoost** emerged as the top-performing model due to its ability to capture non-linear relationships between customer behavior and spend.
+
+### Key Design Decisions
+
+**Averaging for Stability**  
+- Instead of predicting the next transaction value, the model predicts the **average of all historical orders (total)**, reducing sensitivity to one-off or seasonal spikes.
+
+**Ratio-Based Feature Engineering**  
+- Engineered ratio features (e.g., value-to-volume, item-frequency-to-total-spend), which enabled cleaner decision splits compared to raw monetary or quantity features.
+
+**Behavioral Signal Retention**  
+- Average Order Value is primarily driven by payment behavior (credit card usage and installment patterns) and product category mix, while excessive installment counts negatively impact long-term spending.
+
+**Noise Reduction & Regularization**  
+- Applied correlation analysis to remove redundant financial features, reducing overfitting and improving Mean Absolute Error (MAE).
+
+### 5.6 Key Observations & Insights
+
+- **Stability Over Volatility:** Predicting AOV yields more reliable results than forecasting individual order values due to natural noise reduction from averaging.
+- **Unified Behavioral Drivers:** Features effective for loyalty prediction (e.g., sentiment and ratios) were also strong predictors of AOV.
+- **Tree-Based Efficiency:** XGBoost outperformed linear models by handling the long-tail distribution of customer spending more effectively.
+
 
 ---
+
 
 ## 6. Key Challenges & Design Decisions
-- Grain mismatches across datasets
-- Data leakage prevention
-- Class imbalance handling
-- Metric selection rationale
+
+- **Grain mismatches across datasets:** Source tables existed at different levels of granularity, requiring pre-aggregation to a common grain to prevent duplication and distorted metrics.
+- **Data leakage prevention:** All features were derived strictly from information available at the time of the first order, with future behavior used only for label construction.
+- **Class imbalance handling:** Severe class imbalance (~3% repeat customers) was addressed through feature engineering and appropriate evaluation metrics rather than naive resampling.
+- **Metric selection rationale:** PR-AUC was prioritized over accuracy to accurately evaluate model performance on the minority class.
+
 
 ---
 
 ## 7. How to Run the Project
-### Prerequisites
-### Installation
-### Execution Order
+
+1. Clone the repository to your local machine.
+2. Ensure all required libraries are installed (see `requirements.txt`).
+3. Run the EDA notebooks first, followed by the Mart notebooks.  
+   - Run the **Orders Mart notebook last**, as it creates the final master table.
+4. Execute the feature and label notebooks:
+   - `MasterOrders`
+   - `MasterOrderValue`
+5. Train and evaluate the models:
+   - Customer Conversion model
+   - Order Value (AOV) model
+
+## 8. Project Structure
+
+📦 project-root  
+├── 📂 Source Data  
+│   └── Raw input datasets used for analysis and modeling  
+│
+├── 📂 EDA  
+│   └── Exploratory notebooks for data understanding, quality checks, and behavioral analysis  
+│
+├── 📂 Data Modelling  
+│   └── Mart-level transformations and grain alignment logic  
+│
+├── 📂 Processed Data  
+│   └── Cleaned, aggregated, and mart-level datasets ready for feature engineering  
+│
+├── 📂 Features and Label  
+│   ├── Feature engineering notebooks  
+│   └── Label construction notebooks (Customer Conversion & Order Value)  
+│
+├── 📂 ML Model  
+│   ├── Customer Conversion model notebooks  
+│   └── Average Order Value (AOV) model notebooks  
+│
+├── 📂 Images  
+│   └── Diagrams and visual assets used in the README and reports  
+│
+└── 📜 README.md  
+    └── Project documentation and execution guide
 
 ---
 
-## 8. Results & Insights
-- Model comparison summary
-- Business interpretation of results
+## 9. Known Constraints
+
+Every data project operates within practical boundaries. The following constraints were identified in the current workflow:
+
+- **Granularity Alignment:** Source data existed at multiple grains (product, seller, and order). Aligning these into a single order-level master table was necessary for modeling, but resulted in the loss of some fine-grained, item-level behavioral variance.
+- **Class Imbalance:** Customer conversion data was highly imbalanced, with significantly fewer repeat customers than one-time buyers. While mitigation strategies were applied, this remains an inherent constraint on model sensitivity.
+- **Temporal Limitations:** The modeling approach relies on static snapshots of customer behavior. The absence of real-time or streaming data limits responsiveness to immediate, in-session customer signals.
+- **Feature Scope:** Feature engineering was limited to internally available schema and datasets, excluding external or third-party signals such as macroeconomic or behavioral enrichment data.
 
 ---
 
-## 9. Limitations & Future Work
-- Known constraints
-- Planned improvements
+## 10. Planned Improvements
 
----
+To evolve this project toward a more production-grade system, the following enhancements are proposed:
 
-## 10. Conclusion
-Final takeaways and impact
+- **Advanced Modeling Architectures:** Extend beyond traditional linear and tree-based models to explore deep learning approaches such as Multilayer Perceptrons (MLPs) for capturing complex, non-linear customer behavior patterns.
+- **Automated Data Validation:** Introduce automated data quality checks and unit tests (e.g., using Great Expectations) to ensure consistency and integrity as new data is ingested.
+- **Dynamic Feature Engineering:** Transition from static mart-based features to a centralized Feature Store to enable better versioning and point-in-time feature retrieval.
+- **Enhanced Model Explainability:** Incorporate advanced explainability techniques such as SHAP or LIME to provide customer-level insights into model predictions and improve trust and interpretability.

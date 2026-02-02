@@ -319,10 +319,10 @@ To evolve this project toward a more production-grade system, the following enha
 AI tools were used as productivity accelerators throughout the project, while all core logic, modeling decisions, and validations were performed manually.
 
 - **Report & Documentation Generation:**  
-  Large Language Models (GPT) were used to assist in drafting, refining, and structuring technical documentation and README content.
+  GPT was used to assist in drafting, refining, and structuring technical documentation and README content.
 
 - **Diagram & Image Creation:**  
-  Initial workflow diagrams were created manually (e.g., in Excel) and refined using AI-assisted image generation tools to produce clear, presentation-ready visuals.
+  Initial workflow diagrams were created manually (e.g., in Excel) and refined using AI-assisted image generation tools (NANO BANANA).
 
 - **Debugging & Code Review:**  
   AI tools were leveraged to accelerate debugging, sanity-check transformations, and validate implementation logic during development.

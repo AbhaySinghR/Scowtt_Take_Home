@@ -106,6 +106,10 @@ By predicting a customer’s average spend rather than a single future transacti
 
 ![Scope](Images/Scope.png)
 
+<p align="center">
+  <img src="Images/MLFlow.png" width="500" alt="ML Workflow Scope"/>
+</p>
+
 ### 5.1 Machine Learning Model 1: Customer Conversion (Loyalty Prediction)
 
 The objective of this model is to predict the probability that a customer transitions from a one-time buyer to a repeat customer based on their initial transactional and behavioral signals.(Both for Repeated and First Time Customers)
@@ -143,7 +147,9 @@ A **Champion–Challenger** approach was adopted to evaluate multiple algorithms
 - Raw transactional features alone were insufficient to distinguish repeat customers in a highly imbalanced dataset. Extensive feature engineering was required to amplify weak but meaningful loyalty signals.
 
 **High-Impact Features**  
-- Derived metrics such as a **Sentiment Index** (capturing customer satisfaction) and **Engagement Velocity** contributed the most significant predictive lift.
+- Derived metrics such as a **Sentiment Index** (capturing customer satisfaction) and **Engagement Velocity** contributed the most significant predictive lift. Detailed list for improving signals for repeat customers is below
+
+  ![Scope](Images/Metrics.png)
 
 **Ratio-Based Features**  
 - Tree-based models performed more effectively when using **ratio features** (e.g., value-to-volume) rather than individual raw metrics, as ratios enabled more informative decision splits.
@@ -217,6 +223,18 @@ This model focuses on predicting the **Average Order Value (AOV)** a repeat cust
 - **Stability Over Volatility:** Predicting AOV yields more reliable results than forecasting individual order values due to natural noise reduction from averaging.
 - **Unified Behavioral Drivers:** Features effective for loyalty prediction (e.g., sentiment and ratios) were also strong predictors of AOV.
 - **Tree-Based Efficiency:** XGBoost outperformed linear models by handling the long-tail distribution of customer spending more effectively.
+
+![Scope](Images/EvalAOV.png)
+
+### 5.6 Train–Test Split Strategy
+
+To accurately simulate real-world deployment, the dataset was split using a **temporal (time-based) strategy** rather than random sampling.
+
+- The model was trained on **historical data**, representing past customer behavior.
+- Evaluation was performed on **future time periods**, ensuring that predictions were tested on unseen, chronologically newer data.
+- This approach prevents information leakage across time and provides a more realistic assessment of how the model would perform in production.
+
+By training on past data and validating on newer transactions, the evaluation closely mirrors real-world usage where models are applied to predict future customer behavior.
 
 
 ---
@@ -295,3 +313,18 @@ To evolve this project toward a more production-grade system, the following enha
 - **Automated Data Validation:** Introduce automated data quality checks and unit tests (e.g., using Great Expectations) to ensure consistency and integrity as new data is ingested.
 - **Dynamic Feature Engineering:** Transition from static mart-based features to a centralized Feature Store to enable better versioning and point-in-time feature retrieval.
 - **Enhanced Model Explainability:** Incorporate advanced explainability techniques such as SHAP or LIME to provide customer-level insights into model predictions and improve trust and interpretability.
+
+## 11. Use of AI Tools
+
+AI tools were used as productivity accelerators throughout the project, while all core logic, modeling decisions, and validations were performed manually.
+
+- **Report & Documentation Generation:**  
+  Large Language Models (GPT) were used to assist in drafting, refining, and structuring technical documentation and README content.
+
+- **Diagram & Image Creation:**  
+  Initial workflow diagrams were created manually (e.g., in Excel) and refined using AI-assisted image generation tools to produce clear, presentation-ready visuals.
+
+- **Debugging & Code Review:**  
+  AI tools were leveraged to accelerate debugging, sanity-check transformations, and validate implementation logic during development.
+
+

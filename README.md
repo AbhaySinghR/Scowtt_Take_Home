@@ -171,7 +171,7 @@ A **Champion–Challenger** approach was adopted to evaluate multiple algorithms
 
 ### Evaluation Metrics
 
-![Eval](Images/EvalCC.png)
+![Eval](Images/EvalMetrics.png)
 
 Given the strong class imbalance in the dataset, model performance was evaluated using metrics that focus on ranking quality and minority-class detection rather than overall accuracy.
 

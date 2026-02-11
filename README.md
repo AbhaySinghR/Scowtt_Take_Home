@@ -31,6 +31,8 @@ Source Data → EDA → Mart Layer → Modeling → Feature Engineering → Eval
 
 ## 3. Data Modeling (Mart & Schema Design)
 
+![Data Model](Images/DataModelling.png)
+
 ### 3.1 Grain Alignment Strategy
 
 **1. Identifying Grain Mismatches**  
